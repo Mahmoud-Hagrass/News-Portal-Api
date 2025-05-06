@@ -1,0 +1,82 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Http\Resources\PostCollection;
+use App\Http\Resources\PostResource;
+use App\Models\Post;
+use Illuminate\Http\Request;
+
+class PostController extends Controller
+{
+    public function getPosts()
+    { 
+        $query = Post::with(['user', 'category', 'admin', 'images'])
+            ->activeUser()
+            ->activeCategory()
+            ->active();
+
+        $all_posts              = $this->allPosts($query);
+        $postsCollection        = $all_posts->getCollection();
+        $latest_posts           = $this->latestPosts($postsCollection) ; 
+        $oldest_posts           = $this->oldestPosts($postsCollection) ; 
+        $most_read_posts        = $this->mostReadPosts($postsCollection) ; 
+        $popular_posts          = $this->popularPosts($query) ; 
+
+        return response()->json([
+            'all_posts'         => (new PostCollection($all_posts))->response()->getData(true),
+            'latest_posts'      => new PostCollection($latest_posts),
+            'oldest_posts'      => new PostCollection($oldest_posts),
+            'most_read_posts'   => new PostCollection($most_read_posts),
+            'popular_posts'     => new PostCollection($popular_posts),
+        ]);
+    }
+
+    private function allPosts($query)
+    {
+        return $query->latest()->paginate(3) ; 
+    }
+
+    private function latestPosts($query)
+    {
+        return $query->sortByDesc('created_at')->take(3)->values();
+    }
+
+    private function oldestPosts($query)
+    {
+        return $query->sortBy('created_at')->take(3)->values();
+    }
+
+    private function mostReadPosts($query)
+    {
+        return $query->sortByDesc('number_of_views')->take(3)->values(); 
+    }
+
+    private function popularPosts($query)
+    {
+        return $query->withCount('comments')->OrderByDesc('comments_count')->take(3)->get();    
+    }
+
+    public function showPost($slug)
+    {
+        $post = Post::query()
+                ->active()
+                ->activeCategory()
+                ->activeUser()
+                ->with(['user' , 'admin' , 'images' , 'category'])
+                ->whereSlug($slug)
+                ->first() ; 
+        if(!$post){
+            return response()->json([
+                'data' => null , 
+                'status' => 404 , 
+            ]) ; 
+        }
+
+        return response()->json([
+            'data' => new PostResource($post) , 
+            'status' => 200 , 
+        ]) ; 
+    }
+}
