@@ -33,14 +33,17 @@ class PostController extends Controller
         $most_read_posts            = $this->mostReadPosts($postsCollection) ; 
         $popular_posts              = $this->popularPosts($query) ; 
 
-        return response()->json([
+        $response = [
             'all_posts'             => (new PostCollection($all_posts))->response()->getData(true),
             'latest_posts'          => new PostCollection($latest_posts),
             'oldest_posts'          => new PostCollection($oldest_posts),
             'most_read_posts'       => new PostCollection($most_read_posts),
             'popular_posts'         => new PostCollection($popular_posts),
-            'categories_with_posts' => new CategoryCollection($category_with_posts) , 
-        ]);
+            'categories_with_posts' => new CategoryCollection($category_with_posts) ,
+        ] ; 
+    
+        return apiResponse(200 , 'success' , $response) ; 
+    
     }
 
     private function allPosts($query)
@@ -78,15 +81,9 @@ class PostController extends Controller
                 ->whereSlug($slug)
                 ->first() ; 
         if(!$post){
-            return response()->json([
-                'data' => null , 
-                'status' => 404 , 
-            ]) ; 
+            return apiResponse(404,'post not found!') ; 
         }
 
-        return response()->json([
-            'data' => new PostResource($post) , 
-            'status' => 200 , 
-        ]) ; 
+        return apiResponse(200,'success' , new PostResource($post)) ; 
     }
 }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\PostController;
 use App\Models\Post;
 use App\Models\User;
@@ -12,5 +13,10 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 
-Route::get('/posts' , [PostController::class , 'getPosts']) ;  
-Route::get('/posts/show/{slug}' , [PostController::class, 'showPost']) ; 
+Route::prefix('posts')->controller(PostController::class)->group(function(){
+    Route::get('/' , 'getPosts') ;  
+    Route::get('/show/{slug}' , 'showPost') ; 
+}) ;  
+
+Route::get('/categories' , [CategoryController::class , 'getCategories']) ; 
+Route::get('/category/{slug}' , [CategoryController::class, 'getCategory']) ; 
