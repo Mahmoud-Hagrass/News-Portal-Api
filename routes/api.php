@@ -17,13 +17,14 @@ Route::get('/user', function (Request $request) {
 
 
 Route::prefix('posts')->controller(PostController::class)->group(function(){
+    Route::get('/search' , 'postsSearch') ; 
+    Route::get('/{slug}' , 'showPost') ; 
     Route::get('/' , 'getPosts') ;  
-    Route::get('/show/{slug}' , 'showPost') ; 
 }) ;  
 
-Route::controller(CategoryController::class)->group(function(){
-    Route::get('/categories' , 'getCategories') ; 
-    Route::get('/category/{slug}' ,'getCategory') ; 
+Route::prefix('categories')->controller(CategoryController::class)->group(function(){
+    Route::get('/' , 'getCategories') ; 
+    Route::get('/{slug}' ,'getCategory') ; 
 }) ; 
 
 Route::get('/site-settings' , [SettingController::class , 'getOrCreateSetting']) ;

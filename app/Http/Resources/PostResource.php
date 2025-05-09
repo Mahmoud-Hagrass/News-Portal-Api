@@ -23,7 +23,7 @@ class PostResource extends JsonResource
                     'images'                    => PostImageResource::collection($this->whenLoaded('images')) , 
                 ] ; 
         
-        if($request->is('api/posts/show/*')){
+        if($request->is('api/posts/*')){
             $data['category']                   =  new CategoryResource($this->whenLoaded('category')) ;
             $data['post_small_description']     = $this->small_description ; 
             $data['post_number_of_views']       = $this->number_of_views ;

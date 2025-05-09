@@ -21,6 +21,11 @@ class CategoryController extends Controller
             ->activePosts()
             ->active()
             ->get() ; 
+        
+        if($categories->isEmpty() || !$categories){
+            return apiResponse(404 , 'Not Found Any Posts!') ; 
+        } 
+        
         return apiResponse(200,'success' , new CategoryCollection($categories)); 
     }
 
@@ -33,7 +38,11 @@ class CategoryController extends Controller
             ->whereSlug($slug)
             ->active()
             ->activePosts()
-            ->first() ; 
+            ->first() ;
+
+        if($category->isEmpty() || !$category){
+            return apiResponse(404 , 'Not Found!') ;
+        }
         return apiResponse(200,'success', new CategoryResource($category)) ; 
     }
 }

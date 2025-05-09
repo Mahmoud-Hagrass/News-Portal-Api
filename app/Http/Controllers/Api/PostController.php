@@ -33,6 +33,10 @@ class PostController extends Controller
         $most_read_posts            = $this->mostReadPosts($postsCollection) ; 
         $popular_posts              = $this->popularPosts($query) ; 
 
+        if($all_posts->isEmpty()){
+            return apiResponse(404 , 'Not Found Any Posts!') ; 
+        }
+    
         $response = [
             'all_posts'             => (new PostCollection($all_posts))->response()->getData(true),
             'latest_posts'          => new PostCollection($latest_posts),
@@ -85,5 +89,27 @@ class PostController extends Controller
         }
 
         return apiResponse(200,'success' , new PostResource($post)) ; 
+    }
+
+    public function postsSearch(Request $request)
+    {
+        if(!$request->query('keyword')){
+            return apiResponse(404 , 'Not Found!') ; 
+        }
+        $all_posts = Post::with(['user', 'category', 'admin', 'images'])
+                    ->activeUser()
+                    ->activeCategory()
+                    ->active()
+                    ->whereAny(['title' , 'description'] , 'LIKE' , "%" . $request->query('keyword') . "%")
+                    ->paginate(2);
+        
+        if($all_posts->isEmpty()) {
+            return apiResponse(404 , 'Not Found Any Posts!') ; 
+        } 
+        return apiResponse(
+                    200 ,
+                    'success' ,
+                    (new PostCollection($all_posts))->response()->getData(true)
+        ) ;    
     }
 }
