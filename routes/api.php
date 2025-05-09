@@ -2,11 +2,14 @@
 
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\PostController;
+use App\Http\Controllers\Api\RelatedSiteLinkController;
+use App\Http\Controllers\Api\SettingController;
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
+
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -18,5 +21,11 @@ Route::prefix('posts')->controller(PostController::class)->group(function(){
     Route::get('/show/{slug}' , 'showPost') ; 
 }) ;  
 
-Route::get('/categories' , [CategoryController::class , 'getCategories']) ; 
-Route::get('/category/{slug}' , [CategoryController::class, 'getCategory']) ; 
+Route::controller(CategoryController::class)->group(function(){
+    Route::get('/categories' , 'getCategories') ; 
+    Route::get('/category/{slug}' ,'getCategory') ; 
+}) ; 
+
+Route::get('/site-settings' , [SettingController::class , 'getOrCreateSetting']) ;
+
+Route::get('/related-site-links' , [RelatedSiteLinkController::class, 'getRelatedSiteLinks']) ;
