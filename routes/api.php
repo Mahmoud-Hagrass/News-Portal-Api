@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\ContactController;
 use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\RelatedSiteLinkController;
 use App\Http\Controllers\Api\SettingController;
@@ -30,3 +31,5 @@ Route::prefix('categories')->controller(CategoryController::class)->group(functi
 Route::get('/site-settings' , [SettingController::class , 'getOrCreateSetting']) ;
 
 Route::get('/related-site-links' , [RelatedSiteLinkController::class, 'getRelatedSiteLinks']) ;
+
+Route::post('/contacts' , [ContactController::class , 'storeContact']) ; 
