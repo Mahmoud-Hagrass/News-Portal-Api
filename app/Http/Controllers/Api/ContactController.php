@@ -24,7 +24,7 @@ class ContactController extends Controller
                 'address' , 
                 'ip_address' , 
                 'create_at' => now() , 
-            'updated_at' => now() , 
+                'updated_at' => now() , 
         ]) ; 
 
         $contact = Contact::create($request) ; 

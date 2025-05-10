@@ -48,6 +48,8 @@ return [
     */
 
     'expiration' => null,
+    'access_token_expiration'   =>  (int) env('ACCESS_TOKEN_EXPIRATION' , 60) , 
+    'refresh_token_expiration'  =>  (int) env('REFRESH_TOKEN_EXPIRATION' , 1440) , 
 
     /*
     |--------------------------------------------------------------------------

@@ -14,9 +14,20 @@ class UserResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return [
-            'user_name' => $this->name , 
-            'user_status' => $this->status , 
+        $data = [
+            'name'              => $this->name , 
+            'user_status'       => $this->status , 
         ];
+
+        if($request->is('api/auth/user/profile')){
+            $data['user_name']      =  $this->username ;
+            $data['phone']          =  $this->phone ;
+            $data['country']        =  $this->country ;
+            $this['city']           =  $this->city ;
+            $this['street']         =  $this->street ;
+            $this['image']          =  $this->image ; 
+        }
+
+        return $data ; 
     }
 }
