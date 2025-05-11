@@ -37,6 +37,8 @@ Route::post('/contacts' , [ContactController::class , 'storeContact']) ;
 Route::prefix('/auth')->middleware('auth:sanctum')->group(function(){
     Route::post('/register' , [AuthController::class , 'register'])->withoutMiddleware('auth:sanctum')  ; 
     Route::post('/login' , [AuthController::class, 'login'])->withoutMiddleware('auth:sanctum') ; 
+    Route::post('/logout' , [AuthController::class, 'logout']) ; 
     Route::get('/refresh-token' , [AuthController::class, 'refreshToken'])->middleware('ability:'.TokenAbility::REFRESH_TOKEN->value) ; 
+    Route::post('/email/verify' , [AuthController::class, 'verifyEmail']) ; 
     Route::get('/user/profile', [AuthController::class , 'getUserProfile']);
 }) ;

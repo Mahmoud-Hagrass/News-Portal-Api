@@ -4,17 +4,27 @@ namespace App\Http\Controllers\Api\Auth;
 
 use App\Models\User;
 use App\Enums\TokenAbility;
+use App\Events\UserRegistered;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterationRequest;
 use App\Http\Resources\UserResource;
+use App\Notifications\SendOtpVerificationMail;
 use Carbon\Carbon;
+use Ichtrojan\Otp\Otp;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
+    public $otp ; 
+    
+    public function __construct()
+    {
+        $this->otp = new Otp() ;     
+    }
+    
     public function register(RegisterationRequest $request)
     {
         $data = [
@@ -25,19 +35,18 @@ class AuthController extends Controller
                 ] ; 
 
         $user   = User::create($data) ; 
-
         if(!$user){
             return apiResponse(400 , 'Invalid Action, try again!') ; 
         }
 
-        $access_token   = $user->createToken('access-token' , [TokenAbility::ACCESS_TOKEN->value] ,   Carbon::now()->addMinutes(config('sanctum.access_token_expiration')))->plainTextToken ;
-        $refresh_token  = $user->createToken('refresh-token' , [TokenAbility::REFRESH_TOKEN->value] , Carbon::now()->addMinutes(config('sanctum.refresh_token_expiration')))->plainTextToken ;
+        $event = new UserRegistered($user) ; 
+        event($event) ; 
 
         return apiResponse(201 ,
                     'User Registered Successfully!' ,
                     [
-                       'access_token'  => $access_token , 
-                       'refresh_token' => $refresh_token , 
+                       'access_token'  => $event->access_token , 
+                       'refresh_token' => $event->refresh_token , 
                     ]
             ) ; 
     }
@@ -59,6 +68,16 @@ class AuthController extends Controller
                                 'refresh_token' => $refresh_token , 
                             ]
          ) ; 
+    }
+
+    public function logout(Request $request)
+    {
+        $user = $request->user() ; 
+        if(!$user){
+            return apiResponse(400 , 'Invalid Action!') ; 
+        }
+        $user->currentAccessToken()->delete() ; 
+        return apiResponse(200 , 'User Loggedout Successfully!') ; 
     }
 
     public function getUserProfile()
@@ -93,5 +112,25 @@ class AuthController extends Controller
                        'refresh_token' => $refresh_token , 
                     ]
             ) ; 
+    }
+
+    public function verifyEmail(Request $request)
+    {
+        $request->validate([
+            'token' => ['required' , 'string' , 'min:6' , 'max:6'] , 
+        ]) ; 
+
+        $user = $request->user() ;
+        $token = $request->token ; 
+
+        $otp2 = $this->otp->validate($user->email , $token) ; 
+        if($otp2->status === false){
+            return apiResponse(400 , 'Invalid OTP Code!') ; 
+        }
+
+        $user->update([
+            'email_verified_at' => Carbon::now() , 
+        ]) ;
+        return apiResponse(200 , 'Email Verified Successfully') ; 
     }
 }
