@@ -24,7 +24,7 @@ class RegisterationRequest extends FormRequest
         return [
             'name'                  => ['required' , 'string' , 'min:3' , 'max:30'], 
             'username'              => ['required' , 'string' , 'min:3' , 'unique:users,username'] , 
-            'email'                 => ['required' , 'string' , 'email' , 'lowercase' , 'email:filter'  , 'unique:users,email' , 'ends_with:gmail.com'], 
+            'email'                 => ['required' , 'string' , 'email' , 'lowercase' , 'min:15' , 'max:60' , 'email:filter'  , 'unique:users,email' , 'ends_with:gmail.com'], 
             'password'              => ['required' , 'string' , 'min:8' , 'max:40' , 'confirmed'], 
         ];
     }

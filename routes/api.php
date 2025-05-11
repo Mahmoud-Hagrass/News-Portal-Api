@@ -2,6 +2,8 @@
 
 use App\Enums\TokenAbility;
 use App\Http\Controllers\Api\Auth\AuthController;
+use App\Http\Controllers\Api\Auth\ForgotPasswordController;
+use App\Http\Controllers\Api\Auth\ResetPasswordController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ContactController;
 use App\Http\Controllers\Api\PostController;
@@ -42,3 +44,7 @@ Route::prefix('/auth')->middleware('auth:sanctum')->group(function(){
     Route::post('/email/verify' , [AuthController::class, 'verifyEmail']) ; 
     Route::get('/user/profile', [AuthController::class , 'getUserProfile']);
 }) ;
+
+
+Route::post('/forget-password' , [ForgotPasswordController::class , 'forgetPassword']) ; 
+Route::post('/reset-password' , [ResetPasswordController::class , 'resetPassword']) ; 
