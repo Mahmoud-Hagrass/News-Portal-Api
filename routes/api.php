@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\Auth\ForgotPasswordController;
 use App\Http\Controllers\Api\Auth\ResetPasswordController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\ContactController;
 use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\RelatedSiteLinkController;
@@ -48,3 +49,17 @@ Route::prefix('/auth')->middleware('auth:sanctum')->group(function(){
 
 Route::post('/forget-password' , [ForgotPasswordController::class , 'forgetPassword']) ; 
 Route::post('/reset-password' , [ResetPasswordController::class , 'resetPassword']) ; 
+
+
+Route::prefix('account')->controller(PostController::class)->middleware('auth:sanctum')->group(function(){
+    Route::prefix('/posts')->group(function(){
+        Route::get('{slug}/show' , 'getPost') ; 
+        Route::post('/store' , 'storePost') ; 
+        Route::put('/{slug}/update' , 'updatePost'); 
+        Route::delete('/{slug}/delete' , 'deletePost') ; 
+
+        Route::controller(CommentController::class)->group(function(){
+            Route::post('/comments' , 'addComment') ; 
+        }) ; 
+    }) ; 
+}) ; 

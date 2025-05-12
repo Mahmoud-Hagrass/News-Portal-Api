@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class PostImageResource extends JsonResource
+class CommentResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -15,7 +15,9 @@ class PostImageResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'image_path' => asset('/storage/'.$this->image) ,
+            'comment' => $this->comment , 
+            'user_id' => $this->user_id , 
+            'status'  => $this->status , 
         ];
     }
 }

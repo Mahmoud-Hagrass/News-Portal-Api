@@ -3,13 +3,20 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StorePostRequest;
 use App\Http\Resources\CategoryCollection;
 use App\Http\Resources\CategoryResource;
 use App\Http\Resources\PostCollection;
 use App\Http\Resources\PostResource;
 use App\Models\Category;
 use App\Models\Post;
+use App\Models\User;
+use App\Utils\ImageManager;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller
 {
@@ -111,5 +118,84 @@ class PostController extends Controller
                     'success' ,
                     (new PostCollection($all_posts))->response()->getData(true)
         ) ;    
+    }
+
+    public function storePost(StorePostRequest $request)
+    {
+        if(!Auth::guard('sanctum')->check()){
+            return apiResponse(401 , 'Invalid Action , Please Login!') ; 
+        }
+        try{
+            DB::beginTransaction() ; 
+            $user = Auth::guard('sanctum')->user() ; 
+            $data = $request->only(['title' , 'description' , 'small_description' , 'category_id' , 'comment_able']) ; 
+            $post = $user->posts()->create($data) ; 
+
+            //upload images :
+            ImageManager::uploadImages($request , $post ,'public') ;  
+            DB::commit() ; 
+            return apiResponse(200 , 'Post Created Successfully!') ; 
+        }catch(Exception $e){
+            DB::rollBack() ; 
+            return apiResponse(500 , 'Try Again!') ; 
+        }
+    }
+
+    public function deletePost($slug)
+    {
+        try{
+            $post = Post::with('images')->whereSlug($slug)->first() ; 
+            if(!$post){
+                return apiResponse(404 , 'Post Not Found!') ; 
+            }
+            DB::beginTransaction() ; 
+            // delete images from local disk :
+            ImageManager::deleteImagesFromLocalStorage($post) ; 
+            //delete post and it's image paths from db:
+            $post->delete() ;  
+            DB::commit() ; 
+            return apiResponse(200 , 'Post Deleted Successfully!') ; 
+         }catch(Exception $e){
+            DB::rollBack() ; 
+            return apiResponse(500 , 'Try Again!') ; 
+        }
+    }
+
+    public function updatePost(Request $request, $slug)
+    {
+        try{
+            $post = Post::whereSlug($slug)->with('images')->active()->first() ; 
+            if(!$post){
+                return apiResponse(404 , 'Post Not Found!') ; 
+            }
+            DB::beginTransaction() ; 
+            $data = $request->only(['title' , 'description' , 'small_description' , 'comment_able' , 'category_id']) ; 
+            // update post :
+            $post->update($data) ; 
+
+            // Delete Image paths From DB : 
+            $post->images()->delete() ; 
+
+            // Delete Images Itself From Local Storage :
+            ImageManager::deleteImagesFromLocalStorage($post) ;
+
+            // upload New Images For This Post : 
+            ImageManager::uploadImages($request , $post , 'public') ; 
+
+            DB::commit() ; 
+        }catch(Exception $e){
+            DB::rollBack() ; 
+            return apiResponse(500 , 'Try Again!') ; 
+        }
+    }
+
+    public function getPost($slug)
+    {
+        $post = Post::whereSlug($slug)->first() ;
+        if(!$post){
+            return apiResponse(500 , 'Try Again!') ; 
+        }
+        $post_with_data = $post->load(['images' , 'comments' , 'category' , 'user' , 'admin']) ; 
+        return apiResponse(200 , 'success' ,new PostResource($post_with_data)) ; 
     }
 }

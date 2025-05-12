@@ -15,6 +15,7 @@ class PostResource extends JsonResource
     public function toArray(Request $request): array
     {
         $data = [
+                    'id'                        => $this->id , 
                     'post_title'                => $this->title , 
                     'post_slug'                 => $this->slug , 
                     'post_status'               => $this->status ,
@@ -23,11 +24,12 @@ class PostResource extends JsonResource
                     'images'                    => PostImageResource::collection($this->whenLoaded('images')) , 
                 ] ; 
         
-        if($request->is('api/posts/*')){
+        if($request->is('api/posts/*') || $request->is('api/account/posts/*')){
             $data['category']                   =  new CategoryResource($this->whenLoaded('category')) ;
-            $data['post_small_description']     = $this->small_description ; 
-            $data['post_number_of_views']       = $this->number_of_views ;
-            $data['post_comment_able']          = $this->comment_able ;
+            $data['data']                       =  new CommentCollection($this->whenLoaded('comments')) ;
+            $data['post_small_description']     =  $this->small_description ; 
+            $data['post_number_of_views']       =  $this->number_of_views ;
+            $data['post_comment_able']          =  $this->comment_able ;
         }
 
        return $data ; 

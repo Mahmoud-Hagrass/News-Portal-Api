@@ -56,6 +56,26 @@ class User extends Authenticatable
         ];
     }
 
+    //==========================================================================//
+        //------------------------Relationships----------------------------//
+    //==========================================================================//
+    
+    public function posts()
+    {
+        return $this->hasMany(Post::class , 'user_id') ; 
+    }
+
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class , 'user_id') ;
+    }
+
+    
+    //==========================================================================//
+        //------------------------Local Socpes----------------------------//
+    //==========================================================================//
+
     public function getStatusAttribute()
     {
         return $this->attributes['status'] == 1 ? 'Active' : 'Not Active';
