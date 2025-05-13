@@ -41,4 +41,19 @@ class Comment extends Model
     {
         return $query->where('status' , 1) ; 
     }
+
+    public function scopeActiveUser($query)
+    {
+        return $query->whereHas('user' , function($query){
+            $query->where('status' , 1) ; 
+        }) ; 
+    }
+     //==========================================================================//
+        //------------------------Accessors----------------------------//
+    //==========================================================================//
+
+    public function getStatusAttribute()
+    {
+        return $this->attributes['status'] == 1 ? 'active' : 'inactive' ; 
+    }
 }

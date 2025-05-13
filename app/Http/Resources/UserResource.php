@@ -15,8 +15,9 @@ class UserResource extends JsonResource
     public function toArray(Request $request): array
     {
         $data = [
-            'name'              => $this->name , 
-            'user_status'       => $this->status , 
+            'name'                  => $this->name , 
+            'user_image'            => ($this->image) == null ? asset('def-img.jpg') : asset('/storage' . $this->image) , 
+            'user_status'           => $this->status , 
         ];
 
         if($request->is('api/auth/user/profile')){

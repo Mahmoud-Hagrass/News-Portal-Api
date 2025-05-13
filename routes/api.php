@@ -58,8 +58,10 @@ Route::prefix('account')->controller(PostController::class)->middleware('auth:sa
         Route::put('/{slug}/update' , 'updatePost'); 
         Route::delete('/{slug}/delete' , 'deletePost') ; 
 
-        Route::controller(CommentController::class)->group(function(){
-            Route::post('/comments' , 'addComment') ; 
+        Route::prefix('comments')->controller(CommentController::class)->group(function(){
+            Route::post('/' , 'addComment') ; 
+            Route::get('/{slug}' , 'getPostComments') ; 
+            Route::delete('/{commentId}/delete' , 'deletePostComment') ; 
         }) ; 
     }) ; 
 }) ; 

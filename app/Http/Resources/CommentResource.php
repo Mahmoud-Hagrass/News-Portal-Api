@@ -15,9 +15,10 @@ class CommentResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'comment' => $this->comment , 
-            'user_id' => $this->user_id , 
-            'status'  => $this->status , 
+            'comment'   => $this->comment , 
+            'comment_owner' => new UserResource($this->whenLoaded('user'))  , 
+            'created_date' => $this->created_at->format('Y-m-d H:m a') , 
+            'status'    => $this->status , 
         ];
     }
 }
