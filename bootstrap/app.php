@@ -13,6 +13,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // Gloabal Middleware [apply on all routes globally]
+        $middleware->append([
+            'App\Http\Middleware\MarkNotificationAsRead' , 
+        ]) ; 
+        // Alisas Middleware [applay only for specific endpoints]
         $middleware->alias([
             'ability' => CheckForAnyAbility::class , 
         ]) ; 

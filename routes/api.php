@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\Auth\ResetPasswordController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\ContactController;
+use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\RelatedSiteLinkController;
 use App\Http\Controllers\Api\SettingController;
@@ -63,5 +64,14 @@ Route::prefix('account')->controller(PostController::class)->middleware('auth:sa
             Route::get('/{slug}' , 'getPostComments') ; 
             Route::delete('/{commentId}/delete' , 'deletePostComment') ; 
         }) ; 
+    }) ; 
+
+    Route::prefix('notifications')->controller(NotificationController::class)->group(function(){
+        Route::get('/' , 'getAllNotifications') ; 
+        Route::get('/unread' , 'getUnreadNotifications') ; 
+        Route::post('/mark-as-read' , 'markSingleNotificationAsRead') ;
+        Route::get('/mark-all-as-read' , 'markAllNotificationsAsRead') ; 
+        Route::delete('/delete' , 'deleteSingleNotification') ;  
+        Route::delete('/delete/all' , 'deleteAllNotifications') ;  
     }) ; 
 }) ; 

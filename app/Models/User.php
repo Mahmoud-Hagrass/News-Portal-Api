@@ -80,4 +80,10 @@ class User extends Authenticatable
     {
         return $this->attributes['status'] == 1 ? 'Active' : 'Not Active';
     }
+
+    //Customize User Broadcasting Channel
+    public function receivesBroadcastNotificationsOn(): string
+    {
+        return 'users.'. $this->id;
+    }
 }

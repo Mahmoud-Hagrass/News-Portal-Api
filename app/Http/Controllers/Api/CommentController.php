@@ -7,6 +7,7 @@ use App\Http\Requests\StoreCommentRequest;
 use App\Http\Resources\CommentCollection;
 use App\Models\Comment;
 use App\Models\Post;
+use App\Notifications\NewCommentNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -25,6 +26,12 @@ class CommentController extends Controller
             'user_id'    => Auth::guard('sanctum')->user()->id , 
             'ip_address' => $request->ip() , 
         ]) ; 
+
+        $comment_with_data = $comment->load(['user' , 'post']) ; 
+
+        if($post->user_id != Auth::guard('sanctum')->user()->id){
+            $post->user->notify(new NewCommentNotification($comment_with_data)) ;
+        }
 
         if(!$comment){
             return apiResponse(400 , 'Invalid Action!') ; 
