@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Events\UserRegistered;
+use App\Jobs\SendVerificationEmail;
 use App\Notifications\SendOtpVerificationNotification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
@@ -22,6 +23,6 @@ class SendOtpVerificationMail
      */
     public function handle(UserRegistered $event): void
     {
-        $event->user->notify(new SendOtpVerificationNotification()) ; 
+        dispatch(new SendVerificationEmail($event->user)) ; 
     }
 }
