@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\VerifyEmail;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -21,6 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Alisas Middleware [applay only for specific endpoints]
         $middleware->alias([
             'ability' => CheckForAnyAbility::class , 
+            'verify_email' => VerifyEmail::class , 
         ]) ; 
     })
     ->withExceptions(function (Exceptions $exceptions) {

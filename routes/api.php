@@ -38,27 +38,29 @@ Route::post('/contacts' , [ContactController::class , 'storeContact']) ;
 
 
 
-Route::prefix('/auth')->middleware('auth:sanctum')->group(function(){
-    Route::post('/register' , [AuthController::class , 'register'])->withoutMiddleware('auth:sanctum')  ; 
-    Route::post('/login' , [AuthController::class, 'login'])->withoutMiddleware('auth:sanctum') ; 
-    Route::post('/logout' , [AuthController::class, 'logout']) ; 
-    Route::get('/refresh-token' , [AuthController::class, 'refreshToken'])->middleware('ability:'.TokenAbility::REFRESH_TOKEN->value) ; 
-    Route::post('/email/verify' , [AuthController::class, 'verifyEmail']) ; 
-    Route::get('/user/profile', [AuthController::class , 'getUserProfile']);
+Route::prefix('/auth')->controller(AuthController::class)->middleware(['auth:sanctum'])->group(function(){
+    Route::post('/register'      , 'register')->withoutMiddleware('auth:sanctum')  ; 
+    Route::post('/login'         , 'login')->withoutMiddleware('auth:sanctum') ; 
+    Route::post('/logout'        , 'logout') ; 
+    Route::get('/refresh-token'  , 'refreshToken')->middleware('ability:'.TokenAbility::REFRESH_TOKEN->value) ; 
+    Route::post('/email/verify'  , 'verifyEmail') ; 
+    Route::get('/user/profile'   , 'getUserProfile')->middleware('verify_email');
 }) ;
 
-
+/* Reset Password Routes */
 Route::post('/forget-password' , [ForgotPasswordController::class , 'forgetPassword']) ; 
 Route::post('/reset-password' , [ResetPasswordController::class , 'resetPassword']) ; 
 
 
-Route::prefix('account')->controller(PostController::class)->middleware('auth:sanctum')->group(function(){
+Route::prefix('account')->controller(PostController::class)->middleware(['auth:sanctum' , 'verify_email'])->group(function(){
+    /* Post Routes */
     Route::prefix('/posts')->group(function(){
         Route::get('{slug}/show' , 'getPost') ; 
         Route::post('/store' , 'storePost') ; 
         Route::put('/{slug}/update' , 'updatePost'); 
         Route::delete('/{slug}/delete' , 'deletePost') ; 
 
+        /* Comments Routes */
         Route::prefix('comments')->controller(CommentController::class)->group(function(){
             Route::post('/' , 'addComment') ; 
             Route::get('/{slug}' , 'getPostComments') ; 
@@ -66,6 +68,7 @@ Route::prefix('account')->controller(PostController::class)->middleware('auth:sa
         }) ; 
     }) ; 
 
+    /* Notification Routes */
     Route::prefix('notifications')->controller(NotificationController::class)->group(function(){
         Route::get('/' , 'getAllNotifications') ; 
         Route::get('/unread' , 'getUnreadNotifications') ; 
