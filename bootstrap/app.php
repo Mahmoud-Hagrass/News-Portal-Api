@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Gloabal Middleware [apply on all routes globally]
         $middleware->append([
             'App\Http\Middleware\MarkNotificationAsRead' , 
+            'App\Http\Middleware\VerifyApiKey' , 
         ]) ; 
         // Alisas Middleware [applay only for specific endpoints]
         $middleware->alias([
