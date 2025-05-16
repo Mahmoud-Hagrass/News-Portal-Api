@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\VerifyEmail;
+use App\Jobs\RemoveNotValidOtp;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -29,6 +30,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(function (Exceptions $exceptions) {
         //
     })->withSchedule(function (Schedule $schedule) {
+        $schedule->command('otp:clean')->daily();
         $schedule->command('queue:work')->everyMinute();
         $schedule->command('queue:restart')->everyFiveMinutes();
   })->create();
