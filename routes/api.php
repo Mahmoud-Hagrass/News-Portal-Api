@@ -23,36 +23,36 @@ Route::prefix('posts')->controller(PostController::class)->group(function(){
     Route::get('/search' , 'postsSearch') ; 
     Route::get('/{slug}' , 'showPost') ; 
     Route::get('/' , 'getPosts') ;  
-}) ;  
+})->middleware('throttle:home') ;  
 
 Route::prefix('categories')->controller(CategoryController::class)->group(function(){
     Route::get('/' , 'getCategories') ; 
     Route::get('/{slug}' ,'getCategory') ; 
-}) ; 
+})->middleware('throttle:home') ; 
 
-Route::get('/site-settings' , [SettingController::class , 'getOrCreateSetting']) ;
+Route::get('/site-settings' , [SettingController::class , 'getOrCreateSetting'])->middleware('throttle:home') ;
 
-Route::get('/related-site-links' , [RelatedSiteLinkController::class, 'getRelatedSiteLinks']) ;
+Route::get('/related-site-links' , [RelatedSiteLinkController::class, 'getRelatedSiteLinks'])->middleware('throttle:home') ;
 
-Route::post('/contacts' , [ContactController::class , 'storeContact']) ; 
+Route::post('/contacts' , [ContactController::class , 'storeContact'])->middleware('throttle:contacts') ; 
 
 
 
 Route::prefix('/auth')->controller(AuthController::class)->middleware(['auth:sanctum'])->group(function(){
-    Route::post('/register'      , 'register')->withoutMiddleware('auth:sanctum')  ; 
-    Route::post('/login'         , 'login')->withoutMiddleware('auth:sanctum') ; 
+    Route::post('/register'      , 'register')->withoutMiddleware('auth:sanctum')->middleware('throttle:register')  ; 
+    Route::post('/login'         , 'login')->withoutMiddleware('auth:sanctum')->middleware('throttle:login') ; 
     Route::post('/logout'        , 'logout') ; 
-    Route::get('/refresh-token'  , 'refreshToken')->middleware('ability:'.TokenAbility::REFRESH_TOKEN->value) ; 
-    Route::post('/email/verify'  , 'verifyEmail') ; 
-    Route::get('/user/profile'   , 'getUserProfile')->middleware('verify_email');
+    Route::get('/refresh-token'  , 'refreshToken')->middleware(['ability:'.TokenAbility::REFRESH_TOKEN->value , 'throttle:refresh-token']) ; 
+    Route::post('/email/verify'  , 'verifyEmail')->middleware('throttle:verify-email') ; 
+    Route::get('/user/profile'   , 'getUserProfile')->middleware(['verify_email' , 'throttle:user-profile']);
 }) ;
 
 /* Reset Password Routes */
-Route::post('/forget-password' , [ForgotPasswordController::class , 'forgetPassword']) ; 
-Route::post('/reset-password' , [ResetPasswordController::class , 'resetPassword']) ; 
+Route::post('/forget-password' , [ForgotPasswordController::class , 'forgetPassword'])->middleware('throttle:password-reset') ; 
+Route::post('/reset-password' , [ResetPasswordController::class , 'resetPassword'])->middleware('throttle:password-reset') ; 
 
 
-Route::prefix('account')->controller(PostController::class)->middleware(['auth:sanctum' , 'verify_email'])->group(function(){
+Route::prefix('account')->controller(PostController::class)->middleware(['auth:sanctum' , 'verify_email' ,'throttle:account'])->group(function(){
     /* Post Routes */
     Route::prefix('/posts')->group(function(){
         Route::get('{slug}/show' , 'getPost') ; 
